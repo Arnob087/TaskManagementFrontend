@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export default function Home() {
+export default function login() {
   return (
     <>
       {/* #Navbar section */}
@@ -16,7 +16,7 @@ export default function Home() {
               tabIndex={0}
               className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
             >
-              <li><a>Homepage</a></li>
+              <li><a href="../" className="link link-hover">Homepage</a></li>
               <li><a>Portfolio</a></li>
               <li><a>About</a></li>
               <li><a href="#footer" className="link link-hover">Contact</a></li>
@@ -65,69 +65,62 @@ export default function Home() {
             "url(https://as1.ftcdn.net/v2/jpg/11/47/05/68/1000_F_1147056882_ePu17W5fnRlvQJuhskp6T6vbAU5shifx.jpg)",
         }}
       >
-        <div className="hero-overlay"></div>
-        <div className="hero-content text-neutral-content text-center">
-          <div className="max-w-md">
-            <h1 className="mb-5 text-5xl font-bold">Hello there</h1>
-            <p className="mb-5">
-              This is a simple task management application built with Next.js, Tailwind CSS, and DaisyUI. It allows you to create, manage, and track your tasks efficiently. Enjoy the power of our app.
-            </p>
-            <button className="btn btn-primary">Get Started</button>
-          </div>
-        </div>
-      </div>
+        <div className="hero-overlay bg-opacity-60"></div>
+        <div className="card-body max-w-md mx-auto bg-base-100 bg-opacity-90 rounded-lg p-8 shadow-lg">
+            <h2 className="text-center text-5xl font-bold mb-6">Log In</h2>
+
+                <form>
+                    {/* Email Input */}
+                    <div className="form-control mb-4">
+                    <label className="label" htmlFor="email">
+                        <span className="label-text">Email</span>
+                    </label>
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="email@example.com"
+                        className="input input-bordered"
+                        required
+                    />
+                    </div>
+
+                    {/* Password Input */}
+                    <div className="form-control mb-6">
+                    <label className="label" htmlFor="password">
+                        <span className="label-text">Password</span>
+                    </label>
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Your password"
+                        className="input input-bordered"
+                        required
+                    />
+                    <label className="label">
+                        <a href="#" className="label-text-alt link link-hover">
+                        Forgot password?
+                        </a>
+                    </label>
+                    </div>
+
+                    {/* Submit Button */}
+                    <div className="form-control">
+                    <button type="submit" className="btn btn-primary">
+                        Log In
+                    </button>
+                    </div>
+                </form>
+
+                {/* Optional Sign Up Link */}
+                <p className="text-left font-bold mt-10 text-sm">
+                    Don’t have an account?{' '}
+                    <a href="/signup" className="link link-warning">
+                    Sign Up
+                    </a>
+                </p>
+                </div>
+            </div>
       {/* #Hero section */}
-
-      {/* #Features section */}
-      <div className="container mx-auto my-10">
-        <h2 className="text-3xl font-bold text-center mb-8">Features</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="card bg-base-100 shadow-xl">
-            <figure>
-              <Image
-                src="/images/feature1.jpg"
-                alt="Feature 1"
-                width={400}
-                height={300}
-              />
-            </figure>
-            <div className="card-body">
-              <h2 className="card-title">Feature 1</h2>
-              <p>Brief description of Feature 1.</p>
-            </div>
-          </div>
-          <div className="card bg-base-100 shadow-xl">
-            <figure>
-              <Image
-                src="/images/feature2.jpg"
-                alt="Feature 2"
-                width={400}
-                height={300}
-              />
-            </figure>
-            <div className="card-body">
-              <h2 className="card-title">Feature 2</h2>
-              <p>Brief description of Feature 2.</p>
-            </div>
-          </div>
-          <div className="card bg-base-100 shadow-xl">
-            <figure>
-              <Image
-                src="/images/feature3.jpg"
-                alt="Feature 3"
-                width={400}
-                height={300}
-              />
-            </figure>
-            <div className="card-body">
-              <h2 className="card-title">Feature 3</h2>
-              <p>Brief description of Feature 3.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* #Features section */}
 
 
       {/* #Footer section */}
