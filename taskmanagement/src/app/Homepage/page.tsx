@@ -1,6 +1,24 @@
+"use client";
 import Image from "next/image";
+import Link from 'next/link';
+import { useState, useEffect } from "react";
 
-export default function Home() {
+export default function Homepage() {
+
+    //For date
+
+    const [selectedMonth, setSelectedMonth] = useState("");
+
+        useEffect(() => {
+        const today = new Date();
+        const formatted = today.toISOString().slice(0, 7); // "YYYY-MM"
+        setSelectedMonth(formatted);
+        }, []);
+
+        const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSelectedMonth(e.target.value);
+        };
+
   return (
     <>
       {/* #Navbar section */}
@@ -22,22 +40,33 @@ export default function Home() {
               <li><a href="#footer" className="link link-hover">Contact</a></li>
             </ul>
           </div>
+          <div className="avatar ml-6">
+            <div className="ring-primary ring-offset-base-80 w-8 rounded-full ring-2 ring-offset-2">
+                <img src="https://img.daisyui.com/images/profile/demo/spiderperson@192.webp" />
+            </div>
+            </div>
+            <div>
+                <a href="/Profile" className="btn btn-ghost btn-sm">Spiderman</a>
+            </div>
+            <div className="ml-4">
+                <input
+                    type="month"
+                    value={selectedMonth}
+                    onChange={handleMonthChange}
+                    className="input input-sm input-bordered"
+                />
+            </div>
         </div>
 
+
         <div className="navbar-center">
-          <a className="btn btn-ghost text-xl" href="../">TaskManager</a>
+            <a className="btn btn-ghost text-xl" href="../">TaskManager</a>
+            
+            
         </div>
 
         <div className="navbar-end space-x-2">
-          {/* Search Button */}
-          {/* <button className="btn btn-ghost btn-circle">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button> */}
-          <input type="text" placeholder="Search" className="input input-bordered w-24 md:w-auto" />
-
-          {/* Notification Button */}
+        {/* Notification Button */}
           <button className="btn btn-ghost btn-circle">
             <div className="indicator">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -46,12 +75,26 @@ export default function Home() {
               <span className="badge badge-xs badge-primary indicator-item"></span>
             </div>
           </button>
+          {/* Search Button */}
+          {/* <button className="btn btn-ghost btn-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button> */}
+          {/* change popover-1 and --anchor-1 names. Use unique names for each dropdown */}
+                {/* For TSX uncomment the commented types below */}
+            <div className="dropdown dropdown-hover">
+                <label tabIndex={0} className="btn m-1">Week</label>
+                <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+                    <li><a>Week 1</a></li>
+                    <li><a>Week 2</a></li>
+                    <li><a>Week 3</a></li>
+                    <li><a>Week 4</a></li>
+                </ul>
+            </div>
+          <input type="text" placeholder="Search" className="input input-bordered w-24 md:w-auto" />
 
-          {/* Sign Up Button */}
-          <button className="btn btn-outline btn-primary btn-sm"><a href="/Signup">Sign Up</a></button>
-
-          {/* Log In Button */}
-          <button className="btn btn-primary btn-sm"><a href="/Login">Log In</a></button>
+          
         </div>
       </div>
 
@@ -59,24 +102,26 @@ export default function Home() {
 
 
       {/* #Hero section */}
-      <div
+    <div
         className="hero min-h-screen"
         style={{
           backgroundImage:
             "url(https://as1.ftcdn.net/v2/jpg/11/47/05/68/1000_F_1147056882_ePu17W5fnRlvQJuhskp6T6vbAU5shifx.jpg)",
-        }}
-      >
-        <div className="hero-overlay"></div>
-        <div className="hero-content text-neutral-content text-center">
-          <div className="max-w-md">
-            <h1 className="mb-5 text-5xl font-bold">Hello there</h1>
-            <p className="mb-5">
-              This is a simple task management application built with Next.js, Tailwind CSS, and DaisyUI. It allows you to create, manage, and track your tasks efficiently. Enjoy the power of our app.
-            </p>
-            <a href="/Signup" className="btn btn-primary">Get Started</a>
-          </div>
+        }}>
+            
+        <div className="flex flex-wrap justify-center gap-8 mt-2">
+            {[1, 2, 3, 4].map((day) => (
+                <div key={day} className="card w-72 bg-base-100 shadow-sm">
+                <div className="card-body">
+                    <h2 className="text-3xl font-bold">Day : {day}</h2>
+                    <div className="mt-6">
+                    <button className="btn btn-primary btn-block">View Details</button>
+                    </div>
+                </div>
+                </div>
+            ))}
         </div>
-      </div>
+    </div>
       {/* #Hero section */}
 
       {/* #Features section */}

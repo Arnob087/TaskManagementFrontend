@@ -1,6 +1,38 @@
-import Image from "next/image";
+'use client';
+import axios from "axios";
+import { useState } from "react";
+import {useRouter} from "next/navigation";
 
-export default function login() {
+export default function Login() {
+  interface Tokens{
+    accessToken: string;
+  }
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [tokens, setTokens] = useState<Tokens | null>(null);
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('http://localhost:3000/auth/login', {
+        email,
+        password
+      });
+      
+      setTokens(response.data as Tokens);
+      console.log('Login successful:', response.data);
+      router.push('/Homepage');
+      
+  
+    } 
+    catch (error) {
+      console.error('Login failed:', error);
+    }
+
+  }
+
+
+
+
   return (
     <>
       {/* #Navbar section */}
@@ -25,16 +57,17 @@ export default function login() {
         </div>
 
         <div className="navbar-center">
-          <a className="btn btn-ghost text-xl">TaskManager</a>
+          <a className="btn btn-ghost text-xl" href="../">TaskManager</a>
         </div>
 
         <div className="navbar-end space-x-2">
           {/* Search Button */}
-          <button className="btn btn-ghost btn-circle">
+          {/* <button className="btn btn-ghost btn-circle">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-          </button>
+          </button> */}
+          <input type="text" placeholder="Search" className="input input-bordered w-24 md:w-auto" />
 
           {/* Notification Button */}
           <button className="btn btn-ghost btn-circle">
@@ -45,12 +78,6 @@ export default function login() {
               <span className="badge badge-xs badge-primary indicator-item"></span>
             </div>
           </button>
-
-          {/* Sign Up Button */}
-          <button className="btn btn-outline btn-primary btn-sm">Sign Up</button>
-
-          {/* Log In Button */}
-          <button className="btn btn-primary btn-sm">Log In</button>
         </div>
       </div>
 
@@ -69,7 +96,7 @@ export default function login() {
         <div className="card-body max-w-md mx-auto bg-base-100 bg-opacity-90 rounded-lg p-8 shadow-lg">
             <h2 className="text-center text-5xl font-bold mb-6">Log In</h2>
 
-                <form>
+                <form onSubmit={(e) => {handleLogin(); e.preventDefault();}}>
                     {/* Email Input */}
                     <div className="form-control mb-4">
                     <label className="label" htmlFor="email">
@@ -78,6 +105,7 @@ export default function login() {
                     <input
                         type="email"
                         id="email"
+                        onChange={(e) => setEmail(e.target.value)}
                         placeholder="email@example.com"
                         className="input input-bordered"
                         required
@@ -92,6 +120,7 @@ export default function login() {
                     <input
                         type="password"
                         id="password"
+                        onChange={(e) => setPassword(e.target.value)}
                         placeholder="Your password"
                         className="input input-bordered"
                         required
@@ -114,7 +143,7 @@ export default function login() {
                 {/* Optional Sign Up Link */}
                 <p className="text-left font-bold mt-10 text-sm">
                     Don’t have an account?{' '}
-                    <a href="/signup" className="link link-warning">
+                    <a href="/Signup" className="link link-warning">
                     Sign Up
                     </a>
                 </p>
@@ -170,4 +199,4 @@ export default function login() {
     
     </>
   );
-}
+};
