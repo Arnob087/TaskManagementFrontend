@@ -2,22 +2,108 @@
 import Image from "next/image";
 import Link from 'next/link';
 import { useState, useEffect } from "react";
+import axiosInstance from "../Instance/axiosInstance";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+import { get } from "axios";
 
 export default function Homepage() {
 
-    //For date
+
+
+    const token = Cookies.get('accessToken');
+    const getWeekNumber = (date: Date): number => {
+          const dayofmonth = date.getDate();
+            if (dayofmonth <= 7) {
+                return 1; 
+            } else if (dayofmonth <= 14) {
+                return 2; 
+            }
+            else if (dayofmonth <= 21) { 
+                return 3; 
+            }
+            else {
+                return 4; 
+            } 
+          }
+
+    const todayWeekNumber = getWeekNumber(new Date());
 
     const [selectedMonth, setSelectedMonth] = useState("");
+    const [selectedWeek, setSelectedWeek] = useState(String(todayWeekNumber));
+    const [tasks, setTasks] = useState<any[]>([]);
 
         useEffect(() => {
         const today = new Date();
-        const formatted = today.toISOString().slice(0, 7); // "YYYY-MM"
+        const formatted = today.toISOString().slice(0, 7); 
         setSelectedMonth(formatted);
+        
+        
+          if (token && token.split('.').length === 3) {
+                const decoded = jwtDecode(token);
+            try {
+                
+                Cookies.set('UserId', String(decoded.sub ?? ''), {
+                    expires: 1,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'strict',
+                });
+                } catch (err) {
+                console.error("Error decoding JWT:", err);
+                }
+            } 
+            else {
+                console.warn("Invalid or missing token:", token);
+            }
+
+        const userId = Cookies.get('UserId');
+        if (userId) {
+          console.log("User ID from cookie:", userId);
+           axiosInstance.get(`/tasks/user/${userId}`)
+            .then(response => {
+                setTasks(response.data as any[]);
+                console.log("Tasks fetched:", response.data);
+            })
+            .catch(error => console.error("Error fetching tasks:", error));
+        }
+        
+        
+
+
         }, []);
+
+
+        const groupedweekTasks: any[][] = [[], [], [], []];
+        const groupedDayTasks: any[][] = [[], [], [], []];
+
+        
+
+        
+         tasks.forEach(task => {
+            const taskDate = new Date(task.day);
+            const weekNumber = getWeekNumber(taskDate);
+            const taskMonth = taskDate.toISOString().slice(0, 7);
+            if( taskMonth == selectedMonth) {
+              if (weekNumber == Number(selectedWeek)) {
+                const dayIndex = taskDate.getDay(); 
+                if (dayIndex >= 0 && dayIndex < 4) { 
+                    groupedDayTasks[dayIndex].push(task);
+                }
+              }
+            }
+            console.log("Grouped Tasks:", groupedDayTasks);
+          }
+        );
+
+
 
         const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSelectedMonth(e.target.value);
         };
+
+        const handle_tasks = () => {}
+
+    
 
   return (
     <>
@@ -83,13 +169,13 @@ export default function Homepage() {
           </button> */}
           {/* change popover-1 and --anchor-1 names. Use unique names for each dropdown */}
                 {/* For TSX uncomment the commented types below */}
-            <div className="dropdown dropdown-hover">
-                <label tabIndex={0} className="btn m-1">Week</label>
+            <div className="dropdown">
+                <label tabIndex={0} className="btn m-1">{`Week ${selectedWeek}`}</label>
                 <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-                    <li><a>Week 1</a></li>
-                    <li><a>Week 2</a></li>
-                    <li><a>Week 3</a></li>
-                    <li><a>Week 4</a></li>
+                    <li><a onClick={() => { setSelectedWeek("1");}}>Week 1</a></li>
+                    <li><a onClick={() => {setSelectedWeek("2")}}>Week 2</a></li>
+                    <li><a onClick={() => {setSelectedWeek("3")}}>Week 3</a></li>
+                    <li><a onClick={() => {setSelectedWeek("4")}}>Week 4</a></li>
                 </ul>
             </div>
           <input type="text" placeholder="Search" className="input input-bordered w-24 md:w-auto" />
@@ -110,12 +196,26 @@ export default function Homepage() {
         }}>
             
         <div className="flex flex-wrap justify-center gap-8 mt-2">
-            {[1, 2, 3, 4].map((day) => (
-                <div key={day} className="card w-72 bg-base-100 shadow-sm">
+            {groupedDayTasks.map((dayTasks, index) => (
+                <div key={index} className="card w-72 bg-base-100 shadow-sm">
                 <div className="card-body">
-                    <h2 className="text-3xl font-bold">Day : {day}</h2>
+                    <h2 className="text-3xl font-bold">Day : {index + 1}</h2>
+
+                    {/* Render all tasks for this day */}
+                    {dayTasks.length > 0 ? (
+                    <ul className="mt-4 space-y-2">
+                        {dayTasks.map((task: any, i: number) => (
+                        <li key={i} className="text-sm">
+                             {task.title || task.name || 'Untitled Task'}{"  "}{task.completed ? "✅Completed" : "❌Not completed"}
+                        </li>
+                        ))}
+                    </ul>
+                    ) : (
+                    <p className="text-gray-400 mt-4 text-sm">No tasks</p>
+                    )}
+
                     <div className="mt-6">
-                    <button className="btn btn-primary btn-block">View Details</button>
+                    <button className="btn btn-primary btn-block" onClick={handle_tasks}>View Details</button>
                     </div>
                 </div>
                 </div>
@@ -124,7 +224,7 @@ export default function Homepage() {
     </div>
       {/* #Hero section */}
 
-      {/* #Features section */}
+      {/* #Features section }
       <div className="container mx-auto my-10">
         <h2 className="text-3xl font-bold text-center mb-8">Features</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -173,7 +273,8 @@ export default function Homepage() {
         </div>
       </div>
 
-      {/* #Features section */}
+      { #Features section */}
+      
 
 
       {/* #Footer section */}

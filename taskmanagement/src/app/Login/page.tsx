@@ -2,33 +2,42 @@
 import axios from "axios";
 import { useState } from "react";
 import {useRouter} from "next/navigation";
+import Cookies from 'js-cookie';
 
 export default function Login() {
   interface Tokens{
-    accessToken: string;
+    access_token: string;
   }
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [tokens, setTokens] = useState<Tokens | null>(null);
-  const handleLogin = async () => {
-    try {
-      const response = await axios.post('http://localhost:3000/auth/login', {
-        email,
-        password
-      });
-      
-      setTokens(response.data as Tokens);
-      console.log('Login successful:', response.data);
+
+const handleLogin = async () => {
+  try {
+    const response = await axios.post<Tokens>('http://localhost:3000/auth/login', {
+      email,
+      password
+    });
+    const { access_token } = response.data;
+    
+    // Set cookie without await
+    Cookies.set('accessToken', access_token, { expires: 1 }); // expires in 1 day
+    
+   setTimeout(() => {
+    const token = Cookies.get('accessToken');
+    if (token) {
       router.push('/Homepage');
-      
-  
-    } 
-    catch (error) {
-      console.error('Login failed:', error);
-    }
+      } 
+      else {
+        console.error('Still undefined!');
+      }
+    }, 200);
 
   }
+  catch (error) {
+    console.error('Login failed:', error);
+  }
+};
 
 
 
