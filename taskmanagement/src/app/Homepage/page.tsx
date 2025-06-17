@@ -29,6 +29,8 @@ export default function Homepage() {
 
     const todayWeekNumber = getWeekNumber(new Date());
 
+    const [selectedDayTasks, setSelectedDayTasks] = useState<any[]>([]);
+    const [showModal, setShowModal] = useState(false);
     const [selectedMonth, setSelectedMonth] = useState("");
     const [selectedWeek, setSelectedWeek] = useState(String(todayWeekNumber));
     const [tasks, setTasks] = useState<any[]>([]);
@@ -58,11 +60,9 @@ export default function Homepage() {
 
         const userId = Cookies.get('UserId');
         if (userId) {
-          console.log("User ID from cookie:", userId);
            axiosInstance.get(`/tasks/user/${userId}`)
             .then(response => {
                 setTasks(response.data as any[]);
-                console.log("Tasks fetched:", response.data);
             })
             .catch(error => console.error("Error fetching tasks:", error));
         }
@@ -72,8 +72,6 @@ export default function Homepage() {
 
         }, []);
 
-
-        const groupedweekTasks: any[][] = [[], [], [], []];
         const groupedDayTasks: any[][] = [[], [], [], []];
 
         
@@ -101,7 +99,10 @@ export default function Homepage() {
         setSelectedMonth(e.target.value);
         };
 
-        const handle_tasks = () => {}
+        const handle_tasks = (tasksForDay: any[]) => {
+          setSelectedDayTasks(tasksForDay);
+          setShowModal(true);
+        };
 
     
 
@@ -121,7 +122,7 @@ export default function Homepage() {
               className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
             >
               <li><a>Homepage</a></li>
-              <li><a>Portfolio</a></li>
+              <li><a href="/Profile">Portfolio</a></li>
               <li><a>About</a></li>
               <li><a href="#footer" className="link link-hover">Contact</a></li>
             </ul>
@@ -172,7 +173,7 @@ export default function Homepage() {
             <div className="dropdown">
                 <label tabIndex={0} className="btn m-1">{`Week ${selectedWeek}`}</label>
                 <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-                    <li><a onClick={() => { setSelectedWeek("1");}}>Week 1</a></li>
+                    <li><a onClick={() => { setSelectedWeek("1")}}>Week 1</a></li>
                     <li><a onClick={() => {setSelectedWeek("2")}}>Week 2</a></li>
                     <li><a onClick={() => {setSelectedWeek("3")}}>Week 3</a></li>
                     <li><a onClick={() => {setSelectedWeek("4")}}>Week 4</a></li>
@@ -215,12 +216,15 @@ export default function Homepage() {
                     )}
 
                     <div className="mt-6">
-                    <button className="btn btn-primary btn-block" onClick={handle_tasks}>View Details</button>
+                    <button className="btn btn-primary btn-block" onClick={() => handle_tasks(dayTasks)}>View Details</button>
                     </div>
                 </div>
-                </div>
+              </div>
             ))}
         </div>
+        
+
+
     </div>
       {/* #Hero section */}
 
@@ -318,6 +322,48 @@ export default function Homepage() {
       </footer>
       {/* #Footer section */}
       
+
+      {showModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-black rounded-lg p-6 w-[90%] max-w-3xl">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold">Task Details</h3>
+                <button className="text-red-500 font-bold" onClick={() => setShowModal(false)}>✕</button>
+              </div>
+              {selectedDayTasks.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="table w-full table-zebra">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th> Created Date</th>
+                        <th> Deadline</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedDayTasks.map((task, index) => (
+                        <tr key={index}>
+                          <td>{index + 1}</td>
+                          <td>{task.title || task.name || 'Untitled'}</td>
+                          <td>{task.description || 'No description'}</td>
+                          <td>{task.completed ? '✅ Completed' : '❌ Not Completed'}</td>
+                          <td>{new Date(task.day).toLocaleDateString()}</td>
+                          <td>{new Date(task.deadline).toLocaleDateString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p>No task details available.</p>
+              )}
+            </div>
+          </div>
+        )}
+
 
 
     

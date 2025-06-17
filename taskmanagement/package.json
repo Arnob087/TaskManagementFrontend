@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "axios": "^1.9.0",
+    "axios": "^1.10.0",
     "cally": "^0.8.0",
     "daisyui": "^5.0.40",
     "js-cookie": "^3.0.5",

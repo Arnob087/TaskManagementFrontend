@@ -33,9 +33,11 @@ const handleLogin = async () => {
       }
     }, 200);
 
+    
+
   }
   catch (error) {
-    console.error('Login failed:', error);
+    alert('Login failed because of Invalid credentials or something else. Please check your credentials.');
   }
 };
 

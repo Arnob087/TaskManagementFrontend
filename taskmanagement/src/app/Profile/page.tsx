@@ -1,6 +1,83 @@
+"use client";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
+import axiosInstance from "../Instance/axiosInstance";
+import {useRouter} from "next/navigation";
 
-export default function Home() {
+export default function Profile() {
+
+    const [user, setUser] = useState<any>([]);
+
+    const router = useRouter();
+    
+    const [Newpassword, setNewpassword] = useState('');
+    const [Confirmpassword, setConfirmpassword] = useState('');
+
+
+    useEffect(() => {
+        // Simulating fetching user data from an API or local storage
+        const userId = Cookies.get('UserId');
+        if (userId) {
+           axiosInstance.get(`/users/${userId}`)
+            .then(response => {
+                setUser(response.data as any[]);
+            })
+            .catch(error => console.error("Error fetching tasks:", error));
+        }
+
+        
+
+        },[]);
+
+
+        const changePassword = async () => {
+            if (Newpassword !== Confirmpassword) {
+                alert("New password and confirm password do not match!");
+                setNewpassword('');
+                setConfirmpassword('');
+                return;
+            }
+            if( user.password === Newpassword){
+                alert("New password cannot be the same as the old password!");
+                setNewpassword('');
+                setConfirmpassword('');
+                return;
+            }
+
+            try {
+                user.password = Newpassword; 
+                const userId = Cookies.get('UserId');
+                if (!userId) {
+                    alert("User ID not found in cookies.");
+                    return;
+                }
+
+                const response = await axiosInstance.put(`/users/${userId}`, {
+                    name: user.name,
+                    email: user.email,
+                    password: Newpassword, 
+                    role: user.role
+                });
+
+                if (response.status === 200) {
+                    alert("Password changed successfully!");
+                    setNewpassword('');
+                    setConfirmpassword('');
+                    router.push('/Login');
+                } else {
+                    alert("Failed to change password.");
+                }
+            } catch (error) {
+                console.error("Error changing password:", error);
+                alert("An error occurred while changing the password.");
+            }
+        }
+
+
+
+
+
   return (
     <>
       {/* #Navbar section */}
@@ -16,7 +93,7 @@ export default function Home() {
               tabIndex={0}
               className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
             >
-              <li><a>Homepage</a></li>
+              <li><a href="/Home">Homepage</a></li>
               <li><a href="#footer">About</a></li>
               <li><a href="#footer" className="link link-hover">Contact</a></li>
             </ul>
@@ -65,17 +142,45 @@ export default function Home() {
             "url(https://as1.ftcdn.net/v2/jpg/11/47/05/68/1000_F_1147056882_ePu17W5fnRlvQJuhskp6T6vbAU5shifx.jpg)",
         }}
       >
-        <div className="hero-overlay"></div>
-        <div className="hero-content text-neutral-content text-center">
-          <div className="max-w-md">
-            <h1 className="mb-5 text-5xl font-bold">Hello there</h1>
-            <p className="mb-5">
-              This is a simple task management application built with Next.js, Tailwind CSS, and DaisyUI. It allows you to create, manage, and track your tasks efficiently. Enjoy the power of our app.
-            </p>
-            <a href="/Signup" className="btn btn-primary">Get Started</a>
-          </div>
+        <div className="overflow-x-auto">
+            <table className="table w-full bg-black text-white">
+                {/* head */}
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>:</th>
+                    <td>{user.name}</td>
+                </tr>
+                <tr>
+                    <th>E - Mail</th>
+                    <th>:</th>
+                    <th>{user.email}</th>
+                </tr>
+                <tr>
+                    <th>Role</th>
+                    <th>:</th>
+                    <th>{user.role}</th>
+                </tr>
+                <tr>
+                    <th>Password</th>
+                    <th>:</th>
+                    <th>
+                        <label htmlFor="passwordModal" className="cursor-pointer">
+                        <input
+                            type="password"
+                            value={user.password || ''}
+                            readOnly
+                            onClick={() => document.getElementById('passwordModal')?.click()}
+                            className="bg-transparent border-none outline-none text-white cursor-pointer"
+                        />
+                        </label>
+                    </th>
+                </tr>
+                </thead>
+               
+            </table>
         </div>
-      </div>
+    </div>
       {/* #Hero section */}
 
       {/* #Features section */}
@@ -172,6 +277,66 @@ export default function Home() {
       {/* #Footer section */}
       
 
+
+
+        <input type="checkbox" id="passwordModal" className="modal-toggle" />
+        <div className="modal" role="dialog">
+            <div className="modal-box bg-black text-white">
+                <h3 className="font-bold text-lg">Password Notice</h3>
+                <p className="py-4">Password field is read-only for security reasons. Do you want to change password?</p>
+                <div className="modal-action">
+                <label htmlFor="passwordModal" className="btn btn-outline">No</label>
+                <label htmlFor="passwordModal" className="btn btn-primary" onClick={() =>{ document.getElementById('changepassword')?.click()}}>Yes</label>
+                </div>
+            </div>
+        </div>
+
+        <input type="checkbox" id="changepassword" className="modal-toggle" />
+        <div className="modal" role="dialog">
+            <div className="modal-box bg-black text-white">
+                <table className="table w-full bg-black text-white">
+                <thead>
+                    <tr>
+                        <th colSpan={3} className="text-center text-lg font-bold">Change Password</th>
+                    </tr>
+                </thead>
+                <tr>
+                    <th>New Password</th>
+                    <th>:</th>
+                    <th>
+                        <label htmlFor="passwordModal" className="cursor-pointer">
+                        <input
+                            type="password"
+                            value={Newpassword}
+                            required
+                            onChange={(e) => setNewpassword(e.target.value)}
+                            className="bg-transparent border border-white outline-none text-white"
+                        />
+                        </label>
+                    </th>
+                </tr>
+                <tr>
+                    <th>Confirm Password</th>
+                    <th>:</th>
+                    <th>
+                        <label htmlFor="passwordModal" className="cursor-pointer">
+                        <input
+                            type="password"
+                            value={Confirmpassword}
+                            required
+                            onChange={(e) => setConfirmpassword(e.target.value)}
+                            className="bg-transparent border border-white outline-none text-white"
+                        />
+                        </label>
+                    </th>
+                </tr>
+            </table>
+                <div className="modal-action">
+                <label htmlFor="changepassword" className="btn btn-outline">Back</label>
+                <label htmlFor="changepassword" className="btn btn-primary" onClick={() =>{ changePassword()}}>Change</label>
+                </div>
+            </div>
+        </div>
 
     
     
