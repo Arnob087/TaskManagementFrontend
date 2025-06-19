@@ -6,6 +6,7 @@ import axiosInstance from "../Instance/axiosInstance";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { get } from "axios";
+import { useRouter } from "next/navigation";
 
 export default function Homepage() {
 
@@ -28,6 +29,7 @@ export default function Homepage() {
           }
 
     const todayWeekNumber = getWeekNumber(new Date());
+    const router = useRouter();
 
     const [selectedDayTasks, setSelectedDayTasks] = useState<any[]>([]);
     const [showModal, setShowModal] = useState(false);
@@ -104,6 +106,15 @@ export default function Homepage() {
           setShowModal(true);
         };
 
+       const SingleTaskDetail = (task: any) => {
+          Cookies.set('taskId', String(task.id), {
+            expires: 1,
+          });
+
+          router.push('/TaskDetail');
+        };
+
+
     
 
   return (
@@ -127,14 +138,10 @@ export default function Homepage() {
               <li><a href="#footer" className="link link-hover">Contact</a></li>
             </ul>
           </div>
-          <div className="avatar ml-6">
-            <div className="ring-primary ring-offset-base-80 w-8 rounded-full ring-2 ring-offset-2">
-                <img src="https://img.daisyui.com/images/profile/demo/spiderperson@192.webp" />
-            </div>
-            </div>
-            <div>
-                <a href="/Profile" className="btn btn-ghost btn-sm">Spiderman</a>
-            </div>
+
+          
+
+            {/* Month Selection Input */}
             <div className="ml-4">
                 <input
                     type="month"
@@ -153,23 +160,9 @@ export default function Homepage() {
         </div>
 
         <div className="navbar-end space-x-2">
-        {/* Notification Button */}
-          <button className="btn btn-ghost btn-circle">
-            <div className="indicator">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-              <span className="badge badge-xs badge-primary indicator-item"></span>
-            </div>
-          </button>
-          {/* Search Button */}
-          {/* <button className="btn btn-ghost btn-circle">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button> */}
-          {/* change popover-1 and --anchor-1 names. Use unique names for each dropdown */}
-                {/* For TSX uncomment the commented types below */}
+
+
+          {/* Dropdown for Week Selection */}
             <div className="dropdown">
                 <label tabIndex={0} className="btn m-1">{`Week ${selectedWeek}`}</label>
                 <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
@@ -179,8 +172,41 @@ export default function Homepage() {
                     <li><a onClick={() => {setSelectedWeek("4")}}>Week 4</a></li>
                 </ul>
             </div>
-          <input type="text" placeholder="Search" className="input input-bordered w-24 md:w-auto" />
 
+        
+          {/* Search Button */}
+          <button className="btn btn-ghost btn-circle">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button> 
+          <input type="text" placeholder="Search" className="input input-bordered w-24 md:w-auto" /> 
+
+
+        {/* Notification Button */}
+          <button className="btn btn-ghost btn-circle">
+            <div className="indicator">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              <span className="badge badge-xs badge-primary indicator-item"></span>
+            </div>
+          </button>
+
+
+          {/* User Profile Section */}
+          <div className="avatar ml-6">
+            <div className="ring-primary ring-offset-base-80 w-8 rounded-full ring-2 ring-offset-2">
+                <img src="https://img.daisyui.com/images/profile/demo/spiderperson@192.webp" />
+            </div>
+            </div>
+            <div>
+                <a href="/Profile" className="btn btn-ghost btn-sm">Spiderman</a>
+            </div>
+
+
+          
+          
           
         </div>
       </div>
@@ -207,7 +233,7 @@ export default function Homepage() {
                     <ul className="mt-4 space-y-2">
                         {dayTasks.map((task: any, i: number) => (
                         <li key={i} className="text-sm">
-                             {task.title || task.name || 'Untitled Task'}{"  "}{task.completed ? "✅Completed" : "❌Not completed"}
+                             {task.title|| 'Untitled Task'}{"  "}{task.completed ? "✅Completed" : "❌Not completed"}
                         </li>
                         ))}
                     </ul>
@@ -352,6 +378,7 @@ export default function Homepage() {
                           <td>{task.completed ? '✅ Completed' : '❌ Not Completed'}</td>
                           <td>{new Date(task.day).toLocaleDateString()}</td>
                           <td>{new Date(task.deadline).toLocaleDateString()}</td>
+                          <td><button className="btn btn-primary btn-sm" onClick={() => SingleTaskDetail(task)}>See Task</button></td>
                         </tr>
                       ))}
                     </tbody>
