@@ -23,6 +23,8 @@ export default function TaskDetail() {
     const [task, setTask] = useState<any>(null);
     const [time, settime] = useState<any[]>([]);
     const taskId = Cookies.get('taskId');
+    const [status, setstatus] = useState<any>(null);
+    const [user, setuser] = useState<any>(null);
 
         useEffect(() => {
 
@@ -32,6 +34,14 @@ export default function TaskDetail() {
             await axiosInstance.get(`/tasks/${taskId}`)
                 .then(response => {
                     setTask(response.data);
+                })
+                .catch(error => console.error("Error fetching task:", error));
+            }
+
+            if (userId) {
+            await axiosInstance.get(`/users/${userId}`)
+                .then(response => {
+                    setuser(response.data);
                 })
                 .catch(error => console.error("Error fetching task:", error));
             }
@@ -65,8 +75,20 @@ export default function TaskDetail() {
 
                 return () => clearInterval(interval);
             }
-            console.log("seconds",sec);
+            
+        }, [task]);
+        useEffect(() => {
+          if (!task) return;
 
+          if (task.completed === true) {
+            setstatus("Completed");
+          } else if (task.started === true && task.file) {
+            setstatus("Working");
+          } else if (task.started === true) {
+            setstatus("Started");
+          } else {
+            setstatus(null); // or setstatus("Pending");
+          }
         }, [task]);
         
 
@@ -86,12 +108,29 @@ export default function TaskDetail() {
                     setTask(response.data);
                 })
                 .catch(error => console.error("Error fetching task:", error));
+
+
                 
                 
             } catch (error) {
                 console.log(error);
             }
         }
+
+
+        const CheckIcon = () => (
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5 text-green-500">
+            <path
+              fillRule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+              clipRule="evenodd"
+            />
+          </svg>
+        );
+
+        const EmptyDot = () => (
+          <div className="w-3 h-3 rounded-full bg-gray-400 border border-blue-500 shadow-md bg-blue-100 font-bold text-blue-800"></div>
+        );
 
         
 
@@ -147,7 +186,7 @@ export default function TaskDetail() {
             </div>
             </div>
             <div>
-                <a href="/Profile" className="btn btn-ghost btn-sm">Spiderman</a>
+                <a href="/Profile" className="btn btn-ghost btn-sm">{user?.name}</a>
             </div>
         </div>
       </div>
@@ -216,16 +255,38 @@ export default function TaskDetail() {
                                         <td className="text-right">{time[1]}</td>
                                         </tr>
                                         <tr className="py-2">
-                                        <th className="pr-4 font-medium">Task Status</th>
-                                        <td className="px-2 font-semibold">:</td>
-                                        <td className="text-right">{task.started ? "✅ Started" : "⏳ Not started"}</td>
+                                          <th className="pr-4 font-medium">Task Status</th>
+                                          <td className="px-2 font-semibold">:</td>
+                                          <td className="text-right">
+                                            {status ?? "Pending"}
+                                          </td>
                                         </tr>
                                     </tbody>
                                 </table>
                                 <br/><br/>
-                                <div className="flex justify-center">
-                                <button className="btn btn-primary" onClick={()=>{taskStarted()}}>Get Started</button>
-                                </div>
+                                {!task.started && (
+                                  <div className="flex justify-center">
+                                    <button className="btn btn-primary" onClick={taskStarted}>Get Started</button>
+                                  </div>
+                                )}
+                                <ul className="timeline timeline-horizontal justify-center">
+                                {["Started", "Working", "Completed"].map((step, index) => {
+                                  const statusOrder = ["Started", "Working", "Completed"];
+                                  const currentIndex = statusOrder.indexOf(status);
+                                  const stepIndex = statusOrder.indexOf(step);
+                                  const isCompletedStep = stepIndex <= currentIndex;
+
+                                  return (
+                                    <li key={index}>
+                                      <div className="timeline-start">{step}</div>
+                                      <div className="timeline-middle">
+                                        {isCompletedStep ? <CheckIcon /> : <EmptyDot />}
+                                      </div>
+                                      <div className="timeline-end timeline-box"></div>
+                                    </li>
+                                  );
+                                })}
+                              </ul>
                             </>
                             ) : (
                             <p className="text-center text-xl">Loading task...</p>

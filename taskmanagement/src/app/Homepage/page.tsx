@@ -36,6 +36,8 @@ export default function Homepage() {
     const [selectedMonth, setSelectedMonth] = useState("");
     const [selectedWeek, setSelectedWeek] = useState(String(todayWeekNumber));
     const [tasks, setTasks] = useState<any[]>([]);
+    const [user, setuser] = useState<any>(null);
+
 
         useEffect(() => {
         const today = new Date();
@@ -68,6 +70,13 @@ export default function Homepage() {
             })
             .catch(error => console.error("Error fetching tasks:", error));
         }
+        if (userId) {
+            axiosInstance.get(`/users/${userId}`)
+                .then(response => {
+                    setuser(response.data);
+                })
+                .catch(error => console.error("Error fetching task:", error));
+            }
         
         
 
@@ -201,7 +210,7 @@ export default function Homepage() {
             </div>
             </div>
             <div>
-                <a href="/Profile" className="btn btn-ghost btn-sm">Spiderman</a>
+                <a href="/Profile" className="btn btn-ghost btn-sm">{user?.name}</a>
             </div>
 
 
